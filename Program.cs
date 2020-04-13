@@ -43,6 +43,7 @@ namespace Snake
             Console.BufferHeight = Console.WindowHeight;
             lastFoodTime = Environment.TickCount;
 
+            // Initialise obstacles
             List<Position> obstacles = new List<Position>()
             {
                 new Position(12, 12),
@@ -64,6 +65,7 @@ namespace Snake
                 snakeElements.Enqueue(new Position(0, i));
             }
 
+            // Initialise food
             Position food;
             do
             {
@@ -86,6 +88,7 @@ namespace Snake
             {
                 negativePoints++;
 
+                // Control direction of snake
                 if (Console.KeyAvailable)
                 {
                     ConsoleKeyInfo userInput = Console.ReadKey();
@@ -107,9 +110,11 @@ namespace Snake
                     }
                 }
 
-                Position snakeHead = snakeElements.Last();
+                // Reassign snake's head after crossing border
+                Position snakeHead = snakeElements.Last();  // Head at end of queue
                 Position nextDirection = directions[direction];
 
+                // If crossed border, move to other end of the terminal
                 Position snakeNewHead = new Position(snakeHead.row + nextDirection.row,
                     snakeHead.col + nextDirection.col);
 
@@ -118,6 +123,7 @@ namespace Snake
                 if (snakeNewHead.row >= Console.WindowHeight) snakeNewHead.row = 0;
                 if (snakeNewHead.col >= Console.WindowWidth) snakeNewHead.col = 0;
 
+                // If the snake hits itself or hits the obstacles
                 if (snakeElements.Contains(snakeNewHead) || obstacles.Contains(snakeNewHead))
                 {
                     Console.SetCursorPosition(0, 0);
@@ -142,7 +148,7 @@ namespace Snake
                 if (direction == up) Console.Write("^");
                 if (direction == down) Console.Write("v");
 
-
+                // If snake consumes the food:
                 if (snakeNewHead.col == food.col && snakeNewHead.row == food.row)
                 {
                     // feeding the snake
@@ -152,12 +158,13 @@ namespace Snake
                             randomNumbersGenerator.Next(0, Console.WindowWidth));
                     }
                     while (snakeElements.Contains(food) || obstacles.Contains(food));
-                    lastFoodTime = Environment.TickCount;
+                    lastFoodTime = Environment.TickCount;  // Reset last food Time
                     Console.SetCursorPosition(food.col, food.row);
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.Write("@");
                     sleepTime--;
 
+                    // Generate new obstacle
                     Position obstacle = new Position();
                     do
                     {
@@ -175,17 +182,18 @@ namespace Snake
                 else
                 {
                     // moving...
-                    Position last = snakeElements.Dequeue();
+                    Position last = snakeElements.Dequeue();  // Remove the last bit of snake.
                     Console.SetCursorPosition(last.col, last.row);
                     Console.Write(" ");
                 }
 
+                // If food not consumed before time limit, generate new food.
                 if (Environment.TickCount - lastFoodTime >= foodDissapearTime)
                 {
-                    negativePoints = negativePoints + 50;
+                    negativePoints = negativePoints + 50;  // Additional negative points
                     Console.SetCursorPosition(food.col, food.row);
                     Console.Write(" ");
-                    do
+                    do  // Generate new food position
                     {
                         food = new Position(randomNumbersGenerator.Next(0, Console.WindowHeight),
                             randomNumbersGenerator.Next(0, Console.WindowWidth));
