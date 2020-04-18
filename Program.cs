@@ -6,6 +6,7 @@ using System.Collections;
 using System.Threading;
 using System.Windows.Media;
 using System.Media;
+using System.IO;
 
 namespace Snake
 {
@@ -89,12 +90,12 @@ namespace Snake
 
             //Below are the music packs
             MediaPlayer backgroundMusic = new MediaPlayer();//Continous background music
-            backgroundMusic.Open(new System.Uri(System.IO.Directory.GetCurrentDirectory()+ "\\sounds\\backgroundMusic.wav"));
+            backgroundMusic.Open(new System.Uri(Path.Combine(System.IO.Directory.GetCurrentDirectory(),@"..\..\sounds\\backgroundMusic.wav")));
             
 
-            SoundPlayer changeEffect = new SoundPlayer(@"sounds\changePosition.wav");//sound effect when changing directions
-            SoundPlayer eatEffect = new SoundPlayer(@"sounds\munchApple.wav");//sound effect when eating an apple
-            SoundPlayer ObstacleEffect = new SoundPlayer(@"sounds\obstacleHit.wav");//sound effect when an obstacle is hit
+            SoundPlayer changeEffect = new SoundPlayer(@"..\..\sounds\changePosition.wav");//sound effect when changing directions
+            SoundPlayer eatEffect = new SoundPlayer(@"..\..\sounds\munchApple.wav");//sound effect when eating an apple
+            SoundPlayer ObstacleEffect = new SoundPlayer(@"..\..\sounds\obstacleHit.wav");//sound effect when an obstacle is hit
 
             while (true)
             {
