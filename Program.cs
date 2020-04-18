@@ -126,13 +126,16 @@ namespace Snake
                 // If the snake hits itself or hits the obstacles
                 if (snakeElements.Contains(snakeNewHead) || obstacles.Contains(snakeNewHead))
                 {
-                    Console.SetCursorPosition(0, 0);
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Game over!");
                     int userPoints = (snakeElements.Count - 6) * 100 - negativePoints;
                     //if (userPoints < 0) userPoints = 0;
                     userPoints = Math.Max(userPoints, 0);
-                    Console.WriteLine("Your points are: {0}", userPoints);
+                    string gameovertext = "Game over!";
+                    string yourpointsare = "Your points are: {0}";
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.SetCursorPosition((Console.WindowWidth - gameovertext.Length)/2, Console.WindowHeight/4);
+                    Console.WriteLine(gameovertext);
+                    Console.SetCursorPosition((Console.WindowWidth - yourpointsare.Length) / 2, (Console.WindowHeight / 4)+1);
+                    Console.WriteLine(yourpointsare, userPoints);
                     return;
                 }
 
