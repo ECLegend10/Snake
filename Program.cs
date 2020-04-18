@@ -5,6 +5,7 @@ using System.Text;
 using System.Collections;
 using System.Threading;
 using System.Windows.Media;
+using System.Media;
 
 namespace Snake
 {
@@ -86,13 +87,23 @@ namespace Snake
             }
 
 
-            ;
+            //Below are the music packs
+            MediaPlayer backgroundMusic = new MediaPlayer();//Continous background music
+            backgroundMusic.Open(new System.Uri(System.IO.Directory.GetCurrentDirectory()+ "\\sounds\\backgroundMusic.wav"));
+            
+
+            SoundPlayer changeEffect = new SoundPlayer(@"sounds\changePosition.wav");//sound effect when changing directions
+            SoundPlayer eatEffect = new SoundPlayer(@"sounds\munchApple.wav");//sound effect when eating an apple
+            SoundPlayer ObstacleEffect = new SoundPlayer(@"sounds\obstacleHit.wav");//sound effect when an obstacle is hit
+
             while (true)
             {
+                backgroundMusic.Play();
                 negativePoints++;
                 // Control direction of snake
                 if (Console.KeyAvailable)
                 {
+                    changeEffect.Play();
                     ConsoleKeyInfo userInput = Console.ReadKey();
                     if (userInput.Key == ConsoleKey.LeftArrow)
                     {
@@ -128,6 +139,7 @@ namespace Snake
                 // If the snake hits itself or hits the obstacles
                 if (snakeElements.Contains(snakeNewHead) || obstacles.Contains(snakeNewHead))
                 {
+                    ObstacleEffect.Play();
                     Thread.Sleep(500);
                     int userPoints = (snakeElements.Count - 6) * 100- negativePoints;
                     //if (userPoints < 0) userPoints = 0;
@@ -141,7 +153,7 @@ namespace Snake
                     Console.SetCursorPosition((Console.WindowWidth - yourpointsare.Length) / 2, (Console.WindowHeight / 4)+1);
                     Console.WriteLine(yourpointsare, userPoints);
                     
-                    if (userPoints >=30)
+                    if (userPoints >=30)//checks if the player meets winning requirement
                     {
                         resultmessage = "Congratulation! You've won the game :D";
                         Console.SetCursorPosition((Console.WindowWidth - resultmessage.Length) / 2, (Console.WindowHeight / 4) + 2);
@@ -179,7 +191,7 @@ namespace Snake
                     {
                         food = new Position(randomNumbersGenerator.Next(0, Console.WindowHeight),
                             randomNumbersGenerator.Next(0, Console.WindowWidth));
-                        
+                        eatEffect.Play();
                     }
                     while (snakeElements.Contains(food) || obstacles.Contains(food));
                     lastFoodTime = Environment.TickCount;  // Reset last food Time
