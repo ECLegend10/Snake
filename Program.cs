@@ -31,7 +31,9 @@ namespace Snake
             byte up = 3;
             int lastFoodTime = 0;
             int foodDissapearTime = 8000;
-            int negativePoints = 0;
+            //int negativePoints = 0;
+            //this is used to increment when the users missed some food (in this case 3) and the snake would lost one part
+            int missedFoodCount = 0;
 
             Position[] directions = new Position[]
             {
@@ -100,7 +102,7 @@ namespace Snake
             while (true)
             {
                 backgroundMusic.Play();
-                negativePoints++;
+                
                 // Control direction of snake
                 if (Console.KeyAvailable)
                 {
@@ -137,30 +139,42 @@ namespace Snake
                 if (snakeNewHead.row >= Console.WindowHeight) snakeNewHead.row = 0;
                 if (snakeNewHead.col >= Console.WindowWidth) snakeNewHead.col = 0;
 
+                //points count
+                int userPoints = (snakeElements.Count - 4);
+                if (missedFoodCount == 3)
+                {
+                    //missed 3 food in a row, deduct 1 point, remove the tail
+                    Position snakeTail = snakeElements.Dequeue();  // Head at beginning of queue (to remove when points deducted)
+                    Console.SetCursorPosition(snakeTail.col, snakeTail.row); // Remove the last bit of snake.
+                    Console.Write(" ");
+                    missedFoodCount = 0;
+                }
+
                 // If the snake hits itself or hits the obstacles
-                if (snakeElements.Contains(snakeNewHead) || obstacles.Contains(snakeNewHead))
+                // added new rule which is the game ends when the snake is gone
+                if (snakeElements.Contains(snakeNewHead) || obstacles.Contains(snakeNewHead) || snakeElements.Count == 0)
                 {
                     ObstacleEffect.Play();
                     Thread.Sleep(500);
-                    int userPoints = (snakeElements.Count - 6) * 100- negativePoints;
+                    //userPoints is initialize before this if statement
+                    //int userPoints = (snakeElements.Count - 4) * 100 - negativePoints;
                     //if (userPoints < 0) userPoints = 0;
                     userPoints = Math.Max(userPoints, 0);
                     string gameovertext = "Game over!";
                     string yourpointsare = "Your points are: {0}";
                     string resultmessage;
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.SetCursorPosition((Console.WindowWidth - gameovertext.Length)/2, Console.WindowHeight/4);
+                    Console.SetCursorPosition((Console.WindowWidth - gameovertext.Length) / 2, Console.WindowHeight / 4);
                     Console.WriteLine(gameovertext);
-                    Console.SetCursorPosition((Console.WindowWidth - yourpointsare.Length) / 2, (Console.WindowHeight / 4)+1);
+                    Console.SetCursorPosition((Console.WindowWidth - yourpointsare.Length) / 2, (Console.WindowHeight / 4) + 1);
                     Console.WriteLine(yourpointsare, userPoints);
-                    
-                    if (userPoints >=30)//checks if the player meets winning requirement
+                    if (userPoints >= 30)//checks if the player meets winning requirement
                     {
                         resultmessage = "Congratulation! You've won the game :D";
                         Console.SetCursorPosition((Console.WindowWidth - resultmessage.Length) / 2, (Console.WindowHeight / 4) + 2);
                         Console.WriteLine(resultmessage);
                     }
-                    else 
+                    else
                     {
                         resultmessage = "Sorry, you've lost :(";
                         Console.SetCursorPosition((Console.WindowWidth - resultmessage.Length) / 2, (Console.WindowHeight / 4) + 2);
@@ -168,8 +182,20 @@ namespace Snake
                         Console.SetCursorPosition((Console.WindowWidth - 33) / 2, (Console.WindowHeight / 4) + 3);
                         Console.WriteLine("Reach 100 Points next time to win");
                     }
-
                     return;
+                }
+                else
+                {
+                    //display score
+                    Console.SetCursorPosition(0, 0);
+                    if (userPoints < 10 && userPoints >= 0)
+                    {
+                        Console.WriteLine("Current points: 0{0}", userPoints);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Current points: {0}", userPoints);
+                    }
                 }
 
                 Console.SetCursorPosition(snakeHead.col, snakeHead.row);
@@ -200,6 +226,8 @@ namespace Snake
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.Write("@");
                     sleepTime--;
+                    //reset missedFoodCount = 0 when the snake consume the food
+                    missedFoodCount = 0;
 
                     // Generate new obstacle
                     Position obstacle = new Position();
@@ -228,7 +256,9 @@ namespace Snake
                 // If food not consumed before time limit, generate new food.
                 if (Environment.TickCount - lastFoodTime >= foodDissapearTime)
                 {
-                    negativePoints = negativePoints + 50;  // Additional negative points
+                    //Additional missed food
+                    missedFoodCount++;
+                    //negativePoints = negativePoints + 50;  // Additional negative points (no needed as the snake is shorter)
                     Console.SetCursorPosition(food.col, food.row);
                     Console.Write(" ");
                     do  // Generate new food position
