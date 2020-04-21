@@ -49,6 +49,7 @@ namespace Snake
             lastFoodTime = Environment.TickCount;
 
             // Initialise obstacles
+            /*
             List<Position> obstacles = new List<Position>()
             {
                 new Position(12, 12),
@@ -57,6 +58,31 @@ namespace Snake
                 new Position(19, 19),
                 new Position(6, 9),
             };
+            foreach (Position obstacle in obstacles)
+            {
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.SetCursorPosition(obstacle.col, obstacle.row);
+                Console.Write("=");
+            }
+            */
+            
+            List<Position> obstacles = new List<Position>(){};
+            int counterX = 0;
+            while (counterX < 5)
+            {
+                Position obstacle = new Position();
+                obstacle = new Position(randomNumbersGenerator.Next(0, Console.WindowHeight),
+                    randomNumbersGenerator.Next(0, Console.WindowWidth));
+                if (obstacles.Contains(obstacle))
+                {
+                    counterX = counterX - 1;
+                }
+                else
+                {
+                    counterX = counterX + 1;
+                    obstacles.Add(obstacle);
+                }
+            }
             foreach (Position obstacle in obstacles)
             {
                 Console.ForegroundColor = ConsoleColor.Cyan;
