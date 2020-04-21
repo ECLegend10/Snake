@@ -23,6 +23,11 @@ namespace Snake
 
     class Program
     {
+        static Random randomNumbersGenerator = new Random();
+        static List<Position> obstacles = new List<Position>(){};
+        static Queue<Position> snakeElements = new Queue<Position>();
+        static Position food;
+
         static void Main(string[] args)
         {
             byte right = 0;
@@ -44,52 +49,12 @@ namespace Snake
             };
             double sleepTime = 100;
             int direction = right;
-            Random randomNumbersGenerator = new Random();
             Console.BufferHeight = Console.WindowHeight;
             lastFoodTime = Environment.TickCount;
-            
-            // Initialise Obstacles
-            List<Position> obstacles = new List<Position>(){};
-            int counterX = 0;
-            while (counterX < 5)
-            {
-                Position obstacle = new Position();
-                obstacle = new Position(randomNumbersGenerator.Next(0, Console.WindowHeight),
-                    randomNumbersGenerator.Next(0, Console.WindowWidth));
-                if (obstacles.Contains(obstacle))
-                {
-                    counterX = counterX - 1;
-                }
-                else
-                {
-                    counterX = counterX + 1;
-                    obstacles.Add(obstacle);
-                }
-            }
-            foreach (Position obstacle in obstacles)
-            {
-                Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.SetCursorPosition(obstacle.col, obstacle.row);
-                Console.Write("=");
-            }
-
-            Queue<Position> snakeElements = new Queue<Position>();
-            for (int i = 0; i <= 3; i++) //change the initial length of snake from 5 to 3
-            {
-                snakeElements.Enqueue(new Position(0, i));
-            }
-
-            // Initialise food
-            Position food;
-            do
-            {
-                food = new Position(randomNumbersGenerator.Next(0, Console.WindowHeight),
-                    randomNumbersGenerator.Next(0, Console.WindowWidth));
-            }
-            while (snakeElements.Contains(food) || obstacles.Contains(food));
-            Console.SetCursorPosition(food.col, food.row);
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.Write("@");
+           
+            initialiseObstacles();
+            initialiseSnake();
+            createFood();
 
             foreach (Position position in snakeElements)
             {
@@ -227,18 +192,10 @@ namespace Snake
                 // If snake consumes the food:
                 if (snakeNewHead.col == food.col && snakeNewHead.row == food.row)
                 {
+                    eatEffect.Play();
+                    createFood();
                     // feeding the snake
-                    do
-                    {
-                        food = new Position(randomNumbersGenerator.Next(0, Console.WindowHeight),
-                            randomNumbersGenerator.Next(0, Console.WindowWidth));
-                        eatEffect.Play();
-                    }
-                    while (snakeElements.Contains(food) || obstacles.Contains(food));
                     lastFoodTime = Environment.TickCount;  // Reset last food Time
-                    Console.SetCursorPosition(food.col, food.row);
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.Write("@");
                     sleepTime--;
                     //reset missedFoodCount = 0 when the snake consume the food
                     missedFoodCount = 0;
@@ -275,24 +232,65 @@ namespace Snake
                     //negativePoints = negativePoints + 50;  // Additional negative points (no needed as the snake is shorter)
                     Console.SetCursorPosition(food.col, food.row);
                     Console.Write(" ");
-                    do  // Generate new food position
-                    {
-                        food = new Position(randomNumbersGenerator.Next(0, Console.WindowHeight),
-                            randomNumbersGenerator.Next(0, Console.WindowWidth));
-                    }
-                    while (snakeElements.Contains(food) || obstacles.Contains(food));
+                    createFood();
                     lastFoodTime = Environment.TickCount;
                 }
-
-                Console.SetCursorPosition(food.col, food.row);
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.Write("@");
 
                 sleepTime -= 0.01;
 
                 Thread.Sleep((int)sleepTime);
             }
             
+        }
+
+        // Initialise Obstacles
+        public static void initialiseObstacles()
+        {
+            int counterX = 0;
+            while (counterX < 5)
+            {
+                Position obstacle = new Position();
+                obstacle = new Position(randomNumbersGenerator.Next(0, Console.WindowHeight),
+                    randomNumbersGenerator.Next(0, Console.WindowWidth));
+                if (obstacles.Contains(obstacle))
+                {
+                    counterX = counterX - 1;
+                }
+                else
+                {
+                    counterX = counterX + 1;
+                    obstacles.Add(obstacle);
+                }
+            }
+            foreach (Position obstacle in obstacles)
+            {
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.SetCursorPosition(obstacle.col, obstacle.row);
+                Console.Write("=");
+            }
+        }
+
+        // Initialise Snake
+        public static void initialiseSnake()
+        {
+            for (int i = 0; i <= 3; i++) //change the initial length of snake from 5 to 3
+            {
+                snakeElements.Enqueue(new Position(0, i));
+            }
+        }
+
+        // Create Food
+        public static void createFood()
+        {
+            do
+            {
+                food = new Position(randomNumbersGenerator.Next(0, Console.WindowHeight),
+                    randomNumbersGenerator.Next(0, Console.WindowWidth));
+            }
+            while (snakeElements.Contains(food) || obstacles.Contains(food));
+            Console.SetCursorPosition(food.col, food.row);
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write("@");
         }
     }
 }
