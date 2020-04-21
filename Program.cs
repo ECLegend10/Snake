@@ -48,6 +48,7 @@ namespace Snake
             Console.BufferHeight = Console.WindowHeight;
             lastFoodTime = Environment.TickCount;
             
+            // Initialise Obstacles
             List<Position> obstacles = new List<Position>(){};
             int counterX = 0;
             while (counterX < 5)
@@ -190,6 +191,11 @@ namespace Snake
                         Console.SetCursorPosition((Console.WindowWidth - 33) / 2, (Console.WindowHeight / 4) + 3);
                         Console.WriteLine("Reach 100 Points next time to win");
                     }
+                    // Pause screen
+                    Console.SetCursorPosition((Console.WindowWidth - 33) / 2, (Console.WindowHeight / 4) + 6);
+                    Console.WriteLine("Please ENTER key to exit the game.");
+                    Console.ReadLine();
+                    //! Pause screen
                     return;
                 }
                 else
