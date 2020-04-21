@@ -47,24 +47,6 @@ namespace Snake
             Random randomNumbersGenerator = new Random();
             Console.BufferHeight = Console.WindowHeight;
             lastFoodTime = Environment.TickCount;
-
-            // Initialise obstacles
-            /*
-            List<Position> obstacles = new List<Position>()
-            {
-                new Position(12, 12),
-                new Position(14, 20),
-                new Position(7, 7),
-                new Position(19, 19),
-                new Position(6, 9),
-            };
-            foreach (Position obstacle in obstacles)
-            {
-                Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.SetCursorPosition(obstacle.col, obstacle.row);
-                Console.Write("=");
-            }
-            */
             
             List<Position> obstacles = new List<Position>(){};
             int counterX = 0;
