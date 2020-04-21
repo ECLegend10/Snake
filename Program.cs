@@ -30,7 +30,7 @@ namespace Snake
             byte down = 2;
             byte up = 3;
             int lastFoodTime = 0;
-            int foodDissapearTime = 8000;
+            int foodDissapearTime = 15000;
             //int negativePoints = 0;
             //this is used to increment when the users missed some food (in this case 3) and the snake would lost one part
             int missedFoodCount = 0;
