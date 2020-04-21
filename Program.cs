@@ -23,6 +23,11 @@ namespace Snake
 
     class Program
     {
+        static Random randomNumbersGenerator = new Random();
+        static List<Position> obstacles = new List<Position>(){};
+        static Queue<Position> snakeElements = new Queue<Position>();
+        static Position food;
+
         static void Main(string[] args)
         {
             byte right = 0;
@@ -30,7 +35,7 @@ namespace Snake
             byte down = 2;
             byte up = 3;
             int lastFoodTime = 0;
-            int foodDissapearTime = 8000;
+            int foodDissapearTime = 15000;
             //int negativePoints = 0;
             //this is used to increment when the users missed some food (in this case 3) and the snake would lost one part
             int missedFoodCount = 0;
@@ -44,43 +49,12 @@ namespace Snake
             };
             double sleepTime = 100;
             int direction = right;
-            Random randomNumbersGenerator = new Random();
             Console.BufferHeight = Console.WindowHeight;
             lastFoodTime = Environment.TickCount;
-
-            // Initialise obstacles
-            List<Position> obstacles = new List<Position>()
-            {
-                new Position(12, 12),
-                new Position(14, 20),
-                new Position(7, 7),
-                new Position(19, 19),
-                new Position(6, 9),
-            };
-            foreach (Position obstacle in obstacles)
-            {
-                Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.SetCursorPosition(obstacle.col, obstacle.row);
-                Console.Write("=");
-            }
-
-            Queue<Position> snakeElements = new Queue<Position>();
-            for (int i = 0; i <= 3; i++) //change the initial length of snake from 5 to 3
-            {
-                snakeElements.Enqueue(new Position(0, i));
-            }
-
-            // Initialise food
-            Position food;
-            do
-            {
-                food = new Position(randomNumbersGenerator.Next(0, Console.WindowHeight),
-                    randomNumbersGenerator.Next(0, Console.WindowWidth));
-            }
-            while (snakeElements.Contains(food) || obstacles.Contains(food));
-            Console.SetCursorPosition(food.col, food.row);
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.Write("@");
+           
+            initialiseObstacles();
+            initialiseSnake();
+            createFood();
 
             foreach (Position position in snakeElements)
             {
@@ -98,54 +72,9 @@ namespace Snake
             SoundPlayer changeEffect = new SoundPlayer(@"..\..\sounds\changePosition.wav");//sound effect when changing directions
             SoundPlayer eatEffect = new SoundPlayer(@"..\..\sounds\munchApple.wav");//sound effect when eating an apple
             SoundPlayer ObstacleEffect = new SoundPlayer(@"..\..\sounds\obstacleHit.wav");//sound effect when an obstacle is hit
-            //Check whether the score is successfully saved
+			
+			//Check whether the score is successfully saved
             bool saveScore;
-
-            //insert the latest score, sort and write back to the text file
-            bool UpdateScores(int aScore)
-            {
-                //score txt file
-                string mapFile = @"..\..\scores.txt";
-                string msg;
-
-                if (File.Exists(mapFile))
-                {
-                    // Read a text file line by line.
-                    string[] lines = File.ReadAllLines(mapFile);
-                    List<int> scores = new List<int>();
-
-                    //the split will be used used when username is added
-                    foreach (string line in lines)
-                    {
-                        //the line can still be converted to int when there is only score
-                        int getScore = Int32.Parse(line);
-                        scores.Add(getScore); //scores.Add (line.Split (','));
-                    }
-
-                    //Add in the latest score
-                    scores.Add(aScore);
-                    scores.Sort((a, b) => b.CompareTo(a)); //descending sort
-                                                           //when name is added, this line can be used
-                                                           //scores = scores.OrderBy(x => x[1]);
-
-                    // Write the string array to a new file named "WriteLines.txt".
-                    using (StreamWriter outputFile = new StreamWriter(mapFile))
-                    {
-                        foreach (int score in scores)
-                            outputFile.WriteLine(score);
-                    }
-                    return true;
-
-                }
-                else
-                {
-                    string errMsg = "File not exist";
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.SetCursorPosition((Console.WindowWidth - errMsg.Length) / 2, Console.WindowHeight / 4);
-                    Console.WriteLine(errMsg);
-                    return false;
-                }
-            }
 
             while (true)
             {
@@ -216,11 +145,6 @@ namespace Snake
                     Console.WriteLine(gameovertext);
                     Console.SetCursorPosition((Console.WindowWidth - yourpointsare.Length) / 2, (Console.WindowHeight / 4) + 1);
                     Console.WriteLine(yourpointsare, userPoints);
-					/*
-					Console.SetCursorPosition((Console.WindowWidth - namemessage.Length) / 2, (Console.WindowHeight / 4) + 3);
-                    Console.WriteLine(namemessage);
-                    string username = Console.ReadLine();
-					*/
                     if (userPoints >= 30)//checks if the player meets winning requirement
                     {
                         resultmessage = "Congratulation! You've won the game :D";
@@ -238,7 +162,14 @@ namespace Snake
 					//save the score into text file
 					saveScore = UpdateScores(userPoints);
                     //check if the score is saved
+					Console.SetCursorPosition((Console.WindowWidth - 5) / 2, (Console.WindowHeight / 4) + 4);
 					Console.WriteLine(saveScore);
+					
+                    // Pause screen
+                    Console.SetCursorPosition((Console.WindowWidth - 33) / 2, (Console.WindowHeight / 4) + 6);
+                    Console.WriteLine("Please ENTER key to exit the game.");
+                    Console.ReadLine();
+                    //! Pause screen
                     return;
                 }
                 else
@@ -270,18 +201,10 @@ namespace Snake
                 // If snake consumes the food:
                 if (snakeNewHead.col == food.col && snakeNewHead.row == food.row)
                 {
+                    eatEffect.Play();
+                    createFood();
                     // feeding the snake
-                    do
-                    {
-                        food = new Position(randomNumbersGenerator.Next(0, Console.WindowHeight),
-                            randomNumbersGenerator.Next(0, Console.WindowWidth));
-                        eatEffect.Play();
-                    }
-                    while (snakeElements.Contains(food) || obstacles.Contains(food));
                     lastFoodTime = Environment.TickCount;  // Reset last food Time
-                    Console.SetCursorPosition(food.col, food.row);
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.Write("@");
                     sleepTime--;
                     //reset missedFoodCount = 0 when the snake consume the food
                     missedFoodCount = 0;
@@ -318,18 +241,9 @@ namespace Snake
                     //negativePoints = negativePoints + 50;  // Additional negative points (no needed as the snake is shorter)
                     Console.SetCursorPosition(food.col, food.row);
                     Console.Write(" ");
-                    do  // Generate new food position
-                    {
-                        food = new Position(randomNumbersGenerator.Next(0, Console.WindowHeight),
-                            randomNumbersGenerator.Next(0, Console.WindowWidth));
-                    }
-                    while (snakeElements.Contains(food) || obstacles.Contains(food));
+                    createFood();
                     lastFoodTime = Environment.TickCount;
                 }
-
-                Console.SetCursorPosition(food.col, food.row);
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.Write("@");
 
                 sleepTime -= 0.01;
 
@@ -337,5 +251,100 @@ namespace Snake
             }
             
         }
+
+        // Initialise Obstacles
+        public static void initialiseObstacles()
+        {
+            int counterX = 0;
+            while (counterX < 5)
+            {
+                Position obstacle = new Position();
+                obstacle = new Position(randomNumbersGenerator.Next(0, Console.WindowHeight),
+                    randomNumbersGenerator.Next(0, Console.WindowWidth));
+                if (obstacles.Contains(obstacle))
+                {
+                    counterX = counterX - 1;
+                }
+                else
+                {
+                    counterX = counterX + 1;
+                    obstacles.Add(obstacle);
+                }
+            }
+            foreach (Position obstacle in obstacles)
+            {
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.SetCursorPosition(obstacle.col, obstacle.row);
+                Console.Write("=");
+            }
+        }
+
+        // Initialise Snake
+        public static void initialiseSnake()
+        {
+            for (int i = 0; i <= 3; i++) //change the initial length of snake from 5 to 3
+            {
+                snakeElements.Enqueue(new Position(0, i));
+            }
+        }
+
+        // Create Food
+        public static void createFood()
+        {
+            do
+            {
+                food = new Position(randomNumbersGenerator.Next(0, Console.WindowHeight),
+                    randomNumbersGenerator.Next(0, Console.WindowWidth));
+            }
+            while (snakeElements.Contains(food) || obstacles.Contains(food));
+            Console.SetCursorPosition(food.col, food.row);
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write("@");
+        }
+		
+		//Update scores
+        public static bool UpdateScores(int aScore)
+        {
+            //score txt file
+            string mapFile = @"..\..\scores.txt";
+
+            if (File.Exists(mapFile))
+            {
+                // Read a text file line by line.
+                string[] lines = File.ReadAllLines(mapFile);
+                List<int> scores = new List<int>();
+
+                //the split will be used used when username is added
+                foreach (string line in lines)
+                {
+                    //the line can still be converted to int when there is only score
+                    int getScore = Int32.Parse(line);
+                    scores.Add(getScore); //scores.Add (line.Split (','));
+                }
+				//Add in the latest score
+                scores.Add(aScore);
+                scores.Sort((a, b) => b.CompareTo(a)); //descending sort
+                //when name is added, this line can be used
+                //scores = scores.OrderBy(x => x[1]);
+
+                // Write the string array to the text file
+                using (StreamWriter outputFile = new StreamWriter(mapFile))
+                {
+                    foreach (int score in scores)
+					{
+                        outputFile.WriteLine(score);
+					}
+                }
+                return true;
+            }
+            else
+            {
+                string errMsg = "File not exist";
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.SetCursorPosition((Console.WindowWidth - errMsg.Length) / 2, Console.WindowHeight / 4);
+				Console.WriteLine(errMsg);
+                return false;
+            }
+        }	
     }
 }
