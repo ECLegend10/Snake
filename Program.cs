@@ -98,6 +98,54 @@ namespace Snake
             SoundPlayer changeEffect = new SoundPlayer(@"..\..\sounds\changePosition.wav");//sound effect when changing directions
             SoundPlayer eatEffect = new SoundPlayer(@"..\..\sounds\munchApple.wav");//sound effect when eating an apple
             SoundPlayer ObstacleEffect = new SoundPlayer(@"..\..\sounds\obstacleHit.wav");//sound effect when an obstacle is hit
+            //Check whether the score is successfully saved
+            bool saveScore;
+
+            //insert the latest score, sort and write back to the text file
+            bool UpdateScores(int aScore)
+            {
+                //score txt file
+                string mapFile = @"..\..\scores.txt";
+                string msg;
+
+                if (File.Exists(mapFile))
+                {
+                    // Read a text file line by line.
+                    string[] lines = File.ReadAllLines(mapFile);
+                    List<int> scores = new List<int>();
+
+                    //the split will be used used when username is added
+                    foreach (string line in lines)
+                    {
+                        //the line can still be converted to int when there is only score
+                        int getScore = Int32.Parse(line);
+                        scores.Add(getScore); //scores.Add (line.Split (','));
+                    }
+
+                    //Add in the latest score
+                    scores.Add(aScore);
+                    scores.Sort((a, b) => b.CompareTo(a)); //descending sort
+                                                           //when name is added, this line can be used
+                                                           //scores = scores.OrderBy(x => x[1]);
+
+                    // Write the string array to a new file named "WriteLines.txt".
+                    using (StreamWriter outputFile = new StreamWriter(mapFile))
+                    {
+                        foreach (int score in scores)
+                            outputFile.WriteLine(score);
+                    }
+                    return true;
+
+                }
+                else
+                {
+                    string errMsg = "File not exist";
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.SetCursorPosition((Console.WindowWidth - errMsg.Length) / 2, Console.WindowHeight / 4);
+                    Console.WriteLine(errMsg);
+                    return false;
+                }
+            }
 
             while (true)
             {
@@ -168,6 +216,11 @@ namespace Snake
                     Console.WriteLine(gameovertext);
                     Console.SetCursorPosition((Console.WindowWidth - yourpointsare.Length) / 2, (Console.WindowHeight / 4) + 1);
                     Console.WriteLine(yourpointsare, userPoints);
+					/*
+					Console.SetCursorPosition((Console.WindowWidth - namemessage.Length) / 2, (Console.WindowHeight / 4) + 3);
+                    Console.WriteLine(namemessage);
+                    string username = Console.ReadLine();
+					*/
                     if (userPoints >= 30)//checks if the player meets winning requirement
                     {
                         resultmessage = "Congratulation! You've won the game :D";
@@ -182,6 +235,10 @@ namespace Snake
                         Console.SetCursorPosition((Console.WindowWidth - 33) / 2, (Console.WindowHeight / 4) + 3);
                         Console.WriteLine("Reach 100 Points next time to win");
                     }
+					//save the score into text file
+					saveScore = UpdateScores(userPoints);
+                    //check if the score is saved
+					Console.WriteLine(saveScore);
                     return;
                 }
                 else
