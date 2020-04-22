@@ -66,8 +66,8 @@ namespace Snake
 
             //Below are the music packs
             MediaPlayer backgroundMusic = new MediaPlayer();//Continous background music
-            backgroundMusic.Open(new System.Uri(Path.Combine(System.IO.Directory.GetCurrentDirectory(),@"..\..\sounds\\backgroundMusic.wav")));
-            
+            backgroundMusic.Open(new System.Uri(Path.Combine(System.IO.Directory.GetCurrentDirectory(), @"..\..\sounds\\backgroundMusic.wav")));
+
 
             SoundPlayer changeEffect = new SoundPlayer(@"..\..\sounds\changePosition.wav");//sound effect when changing directions
             SoundPlayer eatEffect = new SoundPlayer(@"..\..\sounds\munchApple.wav");//sound effect when eating an apple
@@ -76,10 +76,16 @@ namespace Snake
 			//Check whether the score is successfully saved
             bool saveScore;
 
+            
+
             while (true)
             {
                 backgroundMusic.Play();
-                
+                if (backgroundMusic.Position >= new TimeSpan(0, 1, 25))
+                {
+                    backgroundMusic.Position = new TimeSpan(0, 0, 0);
+                }
+
                 // Control direction of snake
                 if (Console.KeyAvailable)
                 {
@@ -157,7 +163,7 @@ namespace Snake
                         Console.SetCursorPosition((Console.WindowWidth - resultmessage.Length) / 2, (Console.WindowHeight / 4) + 2);
                         Console.WriteLine(resultmessage);
                         Console.SetCursorPosition((Console.WindowWidth - 33) / 2, (Console.WindowHeight / 4) + 3);
-                        Console.WriteLine("Reach 100 Points next time to win");
+                        Console.WriteLine("Reach 30 Points next time to win");
                     }
 					//save the score into text file
 					saveScore = UpdateScores(userPoints);
@@ -346,5 +352,7 @@ namespace Snake
                 return false;
             }
         }	
+
+        
     }
 }
