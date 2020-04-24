@@ -45,7 +45,7 @@ namespace Snake
             byte up = 3;
             int lastFoodTime = 0;
             int foodDissapearTime = 15000;
-            //int negativePoints = 0;
+
             //this is used to increment when the users missed some food (in this case 3) and the snake would lost one part
             int missedFoodCount = 0;
 
@@ -81,11 +81,6 @@ namespace Snake
             SoundPlayer changeEffect = new SoundPlayer(@"..\..\sounds\changePosition.wav");//sound effect when changing directions
             SoundPlayer eatEffect = new SoundPlayer(@"..\..\sounds\munchApple.wav");//sound effect when eating an apple
             SoundPlayer ObstacleEffect = new SoundPlayer(@"..\..\sounds\obstacleHit.wav");//sound effect when an obstacle is hit
-			
-			//Check whether the score is successfully saved
-            bool saveScore;
-
-            
 
             while (true)
             {
@@ -148,9 +143,6 @@ namespace Snake
                 {
                     ObstacleEffect.Play();
                     Thread.Sleep(500);
-                    //userPoints is initialize before this if statement
-                    //int userPoints = (snakeElements.Count - 4) * 100 - negativePoints;
-                    //if (userPoints < 0) userPoints = 0;
                     userPoints = Math.Max(userPoints, 0);
                     string gameovertext = "Game over!";
                     string yourpointsare = "Your points are: {0}";
@@ -175,11 +167,7 @@ namespace Snake
                         Console.WriteLine("Reach 30 Points next time to win");
                     }
 					//save the score into text file
-					saveScore = UpdateScores(userPoints);
-                    //check if the score is saved
-					Console.SetCursorPosition((Console.WindowWidth - 5) / 2, (Console.WindowHeight / 4) + 4);
-					Console.WriteLine(saveScore);
-					
+					UpdateScores(userPoints);
                     // Pause screen
                     Console.SetCursorPosition((Console.WindowWidth - 33) / 2, (Console.WindowHeight / 4) + 6);
                     Console.WriteLine("Please ENTER key to exit the game.");
@@ -189,16 +177,12 @@ namespace Snake
                 }
                 else
                 {
+                    //reset score display
+                    Console.SetCursorPosition(0, 0);
+                    Console.WriteLine("Current points:              ");
                     //display score
                     Console.SetCursorPosition(0, 0);
-                    if (userPoints < 10 && userPoints >= 0)
-                    {
-                        Console.WriteLine("Current points: 0{0}", userPoints);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Current points: {0}", userPoints);
-                    }
+                    Console.WriteLine("Current points: {0}", userPoints);
                 }
 
                 Console.SetCursorPosition(snakeHead.col, snakeHead.row);
@@ -422,6 +406,7 @@ namespace Snake
             Console.Write("@");
         }
 
+
         public static bool ReadScores()
         {
             //score txt file
@@ -467,10 +452,9 @@ namespace Snake
             }
         }
 
-
-
-        //Update scores
-        public static bool UpdateScores(int aScore)
+		
+		//Update scores
+		public static void UpdateScores(int aScore)
         {
             //score txt file
             string mapFile = @"..\..\scores.txt";
@@ -502,7 +486,6 @@ namespace Snake
                         outputFile.WriteLine(score);
 					}
                 }
-                return true;
             }
             else
             {
@@ -510,10 +493,7 @@ namespace Snake
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.SetCursorPosition((Console.WindowWidth - errMsg.Length) / 2, Console.WindowHeight / 4);
 				Console.WriteLine(errMsg);
-                return false;
             }
         }	
-
-        
     }
 }
