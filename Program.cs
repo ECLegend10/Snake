@@ -31,10 +31,15 @@ namespace Snake
         static void Main(string[] args)
         {
             bool userPlay = false;//checks if the user wants to play snake game
+            string userName = "";
             while (!userPlay)//loop stays in place as long as user does not want to play yet
             {
                 int fUserChoice = GameMenu();
                 userPlay = DetermineUserMenuChoice(fUserChoice);
+                if (userPlay == true) 
+                {
+                    GetUserName(ref userName);
+                }
             }
             
             
@@ -146,6 +151,7 @@ namespace Snake
                     userPoints = Math.Max(userPoints, 0);
                     string gameovertext = "Game over!";
                     string yourpointsare = "Your points are: {0}";
+                    string thankmessage = "Thank you for playing, {0}!";
                     string resultmessage;
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.SetCursorPosition((Console.WindowWidth - gameovertext.Length) / 2, Console.WindowHeight / 4);
@@ -166,8 +172,13 @@ namespace Snake
                         Console.SetCursorPosition((Console.WindowWidth - 33) / 2, (Console.WindowHeight / 4) + 3);
                         Console.WriteLine("Reach 30 Points next time to win");
                     }
-					//save the score into text file
-					UpdateScores(userPoints);
+                    //check username
+                    Console.SetCursorPosition((Console.WindowWidth - thankmessage.Length) / 2, (Console.WindowHeight / 4) + 4);
+                    Console.WriteLine(thankmessage, userName);
+
+                    //save the score into text file
+                    UpdateScores(userPoints);
+
                     // Pause screen
                     Console.SetCursorPosition((Console.WindowWidth - 33) / 2, (Console.WindowHeight / 4) + 6);
                     Console.WriteLine("Please ENTER key to exit the game.");
@@ -334,6 +345,7 @@ namespace Snake
             return lcurrentChoice;
         }
 
+        //Game Menu Choices
         public static bool DetermineUserMenuChoice(int aUserChoice)
         {
             if (aUserChoice == 3) //Exit Game
@@ -356,6 +368,14 @@ namespace Snake
                 return true;
             }
             return true;
+        }
+
+        //Get userName to be store in the text file
+        public static void GetUserName(ref string aName)
+        {
+            Console.WriteLine("SNAKE GAME!");
+            Console.WriteLine("What is your name?");
+            aName = Console.ReadLine();
         }
 
         public static void PrintGameInstructions()
