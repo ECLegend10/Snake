@@ -1,5 +1,6 @@
-Alvin,5
-Ben,3
-Elwin,2
-JohnDoe,0
-John Doe,0
+5
+3
+2
+0
+0
+0
